@@ -1,0 +1,16 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.6.2
+_src_path: https://github.com/jupyterlab/extension-template
+advanced: false
+author_email: thomas.m.schilder@gmail.com
+author_name: Thomas Schilder
+has_ai_rules: false
+has_binder: false
+has_settings: false
+kind: frontend
+labextension_name: dvre-workflow-composer
+project_short_description: A JupyterLab extension.
+python_name: dvre_workflow_composer
+repository: https://github.com/ThomasSchilder/dvre-workflow-composer
+test: false
+

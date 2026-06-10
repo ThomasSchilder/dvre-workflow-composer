@@ -1,0 +1,8 @@
+node_modules
+**/node_modules
+**/lib
+**/package.json
+!/package.json
+dvre_workflow_composer
+eslint.config.mjs
+.venv
