@@ -29,6 +29,7 @@
         "url": "https://github.com/ThomasSchilder/dvre-workflow-composer.git"
     },
     "scripts": {
+        "build-watch": "jlpm build && jlpm watch",
         "build": "jlpm build:lib && jlpm build:labextension:dev",
         "build:prod": "jlpm clean && jlpm build:lib:prod && jlpm build:labextension",
         "build:labextension": "jupyter-builder build .",
@@ -59,6 +60,9 @@
         "@jupyterlab/apputils": "^4.0.0",
         "@jupyterlab/launcher": "^4.0.0",
         "@jupyterlab/ui-components": "^4.0.0",
+        "@rjsf/core": "6.6.2",
+        "@rjsf/utils": "6.6.2",
+        "@rjsf/validator-ajv8": "6.6.2",
         "react": "^18.2.0"
     },
     "devDependencies": {

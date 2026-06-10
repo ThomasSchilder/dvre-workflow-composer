@@ -20,5 +20,6 @@
     "strictNullChecks": true,
     "target": "ES2018"
   },
-  "include": ["src/*"]
+  "files": ["src/schemas/workflow-v1.json"],
+  "include": ["src/**/*"]
 }

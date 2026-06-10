@@ -1,25 +1,20 @@
 import { ReactWidget } from '@jupyterlab/ui-components';
+import React from 'react';
 
-import React, { useState } from 'react';
+/**
+ * Components
+ */
+import { WorkflowSchema } from './WorkflowSchema';
 
 /**
  * React component for a counter.
  *
  * @returns The React component
  */
-const CounterComponent = (): JSX.Element => {
-  const [counter, setCounter] = useState(0);
-
+const WorkflowComponent = (): JSX.Element => {
   return (
-    <div>
-      <p>You clicked {counter} times!</p>
-      <button
-        onClick={(): void => {
-          setCounter(counter + 1);
-        }}
-      >
-        Increment
-      </button>
+    <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
+      <WorkflowSchema></WorkflowSchema>
     </div>
   );
 };
@@ -28,15 +23,12 @@ const CounterComponent = (): JSX.Element => {
  * A Counter Lumino Widget that wraps a CounterComponent.
  */
 export class WorkflowComposer extends ReactWidget {
-  /**
-   * Constructs a new CounterWidget.
-   */
   constructor() {
     super();
     this.addClass('jp-wb-base');
   }
 
   render(): JSX.Element {
-    return <CounterComponent />;
+    return <WorkflowComponent />;
   }
 }
