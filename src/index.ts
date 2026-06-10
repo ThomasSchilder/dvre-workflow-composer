@@ -3,6 +3,26 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 
+import { ILauncher } from '@jupyterlab/launcher';
+import { LabIcon } from '@jupyterlab/ui-components';
+import { MainAreaWidget } from '@jupyterlab/apputils';
+
+// React imports
+import { WorkflowComposer } from './WorkflowComposer';
+
+const builderIcon = new LabIcon({
+  name: 'my-extension:auth',
+  svgstr:
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M246.9 82.3L271 67.8C292.6 54.8 317.3 48 342.5 48C379.3 48 414.7 62.6 440.7 88.7L504.6 152.6C519.6 167.6 528 188 528 209.2L528 240.1L547.7 259.8L547.7 259.8C563.3 244.2 588.6 244.2 604.3 259.8C620 275.4 619.9 300.7 604.3 316.4L540.3 380.4C524.7 396 499.4 396 483.7 380.4C468 364.8 468.1 339.5 483.7 323.8L464 304L433.1 304C411.9 304 391.5 295.6 376.5 280.6L327.4 231.5C312.4 216.5 304 196.1 304 174.9L304 162.2C304 151 298.1 140.5 288.5 134.8L246.9 109.8C236.5 103.6 236.5 88.6 246.9 82.4zM50.7 466.7L272.8 244.6L363.3 335.1L141.2 557.2C116.2 582.2 75.7 582.2 50.7 557.2C25.7 532.2 25.7 491.7 50.7 466.7z"/></svg>'
+});
+
+/**
+ * The command IDs used by the react-widget plugin.
+ */
+namespace CommandIDs {
+  export const create = 'workflow-builder';
+}
+
 /**
  * Initialization data for the dvre-workflow-composer extension.
  */
@@ -10,8 +30,34 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'dvre-workflow-composer:plugin',
   description: 'A JupyterLab extension.',
   autoStart: true,
-  activate: (app: JupyterFrontEnd) => {
+  optional: [ILauncher],
+  activate: (app: JupyterFrontEnd, launcher: ILauncher) => {
     console.log('JupyterLab extension dvre-workflow-composer is activated!');
+    console.log('Test');
+
+    const { commands } = app;
+
+    const command = CommandIDs.create;
+    commands.addCommand(command, {
+      caption: 'Create a new workflow',
+      label: 'Workflow composer',
+      icon: args => (args['isPalette'] ? undefined : builderIcon),
+      describedBy: { args: {} },
+      execute: () => {
+        const content = new WorkflowComposer();
+        const widget = new MainAreaWidget<WorkflowComposer>({ content });
+        widget.title.label = 'Workflow composer';
+        widget.title.icon = builderIcon;
+        app.shell.add(widget, 'main');
+      }
+    });
+
+    if (launcher) {
+      launcher.add({
+        category: 'Decentralized Virtual Research Environment (DVRE)',
+        command
+      });
+    }
   }
 };
 
