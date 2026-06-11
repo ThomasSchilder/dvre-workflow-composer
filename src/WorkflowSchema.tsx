@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import Form from '@rjsf/core';
 import { RJSFSchema } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
@@ -8,23 +8,41 @@ import CustomAddButton from './CustomAddButton';
 import CustomWrapIfAdditional from './CustomWrapIfAdditional';
 import CustomObjectFieldTemplate from './CustomObjectFieldTemplate';
 import CustomDescriptionField from './CustomDescriptionField';
+import { cleanConditionalFormData } from './conditionalRules';
 
 const WorkflowSchema = function () {
-  const log = (type: string) => console.log.bind(console, type);
+  const [formData, setFormData] = useState<Record<string, any>>({
+    apiVersion: 'v1'
+  });
+
+  const handleChange = useCallback(
+    (event: { formData?: Record<string, any> }) => {
+      const cleaned = cleanConditionalFormData(
+        event.formData || {},
+        formData,
+        workflowSchema as Record<string, any>
+      );
+      setFormData(cleaned);
+    },
+    [formData]
+  );
+
   return (
     <Form
       schema={workflowSchema as RJSFSchema}
       uiSchema={uiSchema}
       validator={validator}
+      formData={formData}
+      onChange={handleChange}
+      formContext={{ rawSchema: workflowSchema }}
       templates={{
         ButtonTemplates: { AddButton: CustomAddButton },
         WrapIfAdditionalTemplate: CustomWrapIfAdditional,
         ObjectFieldTemplate: CustomObjectFieldTemplate,
         DescriptionFieldTemplate: CustomDescriptionField
       }}
-      onChange={log('changed')}
-      onSubmit={log('submitted')}
-      onError={log('errors')}
+      onSubmit={() => {}}
+      onError={() => {}}
     />
   );
 };

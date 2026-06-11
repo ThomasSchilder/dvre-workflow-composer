@@ -1,8 +1,15 @@
 import React from 'react';
 import type { ObjectFieldTemplateProps } from '@rjsf/utils';
 import { buttonId, canExpand, getTemplate, getUiOptions } from '@rjsf/utils';
+import {
+  extractConditionalRules,
+  findMatchingRawDef,
+  getVisibleFields
+} from './conditionalRules';
 
-function CustomObjectFieldTemplate(props: ObjectFieldTemplateProps): JSX.Element {
+function CustomObjectFieldTemplate(
+  props: ObjectFieldTemplateProps
+): JSX.Element {
   const {
     className,
     description,
@@ -21,7 +28,11 @@ function CustomObjectFieldTemplate(props: ObjectFieldTemplateProps): JSX.Element
   } = props;
 
   const options = getUiOptions(uiSchema);
-  const TitleFieldTemplate = getTemplate('TitleFieldTemplate', registry, options);
+  const TitleFieldTemplate = getTemplate(
+    'TitleFieldTemplate',
+    registry,
+    options
+  );
   const DescriptionFieldTemplate = getTemplate(
     'DescriptionFieldTemplate',
     registry,
@@ -37,18 +48,40 @@ function CustomObjectFieldTemplate(props: ObjectFieldTemplateProps): JSX.Element
   }
 
   const showOptionalDataControlInTitle = !readonly && !disabled;
-  const { ButtonTemplates: { AddButton } } = registry.templates;
+  const {
+    ButtonTemplates: { AddButton }
+  } = registry.templates;
 
   const rowGroups: string[][] = (options as any).rowGroups || [];
 
-  const groupedNames = new Set(rowGroups.reduce((acc: string[], g: string[]) => acc.concat(g), []));
-  const ungrouped = properties.filter(p => !groupedNames.has(p.name) && !p.hidden);
-  const hiddenProps = properties.filter(p => p.hidden);
+  const rawSchema = (registry.formContext as any)?.rawSchema;
+  const rawDef = rawSchema
+    ? findMatchingRawDef(rawSchema, schema as Record<string, any>)
+    : null;
+  const rule = rawDef ? extractConditionalRules(rawDef) : null;
+  const allPropertyNames = Object.keys(schema.properties || {});
+  const visibleFields = rule
+    ? getVisibleFields(
+        (formData || {}) as Record<string, any>,
+        rule,
+        allPropertyNames
+      )
+    : null;
+
+  const isVisible = (name: string): boolean => {
+    if (!visibleFields) return true;
+    return visibleFields.has(name);
+  };
+
+  const visibleProperties = properties.filter(
+    p => !p.hidden && isVisible(p.name)
+  );
+  const rjsfHidden = properties.filter(p => p.hidden);
 
   const rowGroupElements = rowGroups.map((group, gi) => {
     const groupProps = group
       .map(name => properties.find(p => p.name === name))
-      .filter(p => p && !p.hidden);
+      .filter(p => p && !p.hidden && isVisible(p!.name));
     if (groupProps.length === 0) return null;
     return (
       <div className="jp-wb-row-group" key={`rowgroup-${gi}`}>
@@ -60,6 +93,11 @@ function CustomObjectFieldTemplate(props: ObjectFieldTemplateProps): JSX.Element
       </div>
     );
   });
+
+  const groupedNames = new Set(
+    rowGroups.reduce((acc: string[], g: string[]) => acc.concat(g), [])
+  );
+  const ungrouped = visibleProperties.filter(p => !groupedNames.has(p.name));
 
   return (
     <fieldset className={className} id={fieldPathId.$id}>
@@ -86,7 +124,7 @@ function CustomObjectFieldTemplate(props: ObjectFieldTemplateProps): JSX.Element
         />
       )}
       {!showOptionalDataControlInTitle ? optionalDataControl : undefined}
-      {hiddenProps.map(p => p.content)}
+      {rjsfHidden.map(p => p.content)}
       {rowGroupElements}
       {ungrouped.map(p => p.content)}
       {canExpand(schema, uiSchema, formData) && (
