@@ -3,3 +3,8 @@
 
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
+
+.jp-wb-base {
+  height: 100%;
+  width: 100%;
+}

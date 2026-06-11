@@ -13,7 +13,7 @@ import { WorkflowSchema } from './WorkflowSchema';
  */
 const WorkflowComponent = (): JSX.Element => {
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
+    <div className="jp-wb-form-container">
       <WorkflowSchema></WorkflowSchema>
     </div>
   );
