@@ -21,18 +21,20 @@ function CustomWrapIfAdditional({
   const additional = ADDITIONAL_PROPERTY_FLAG in schema;
 
   const addLabel =
-    (uiSchema && uiSchema['ui:options'] && (uiSchema['ui:options'] as any).addLabel) ||
+    (uiSchema &&
+      uiSchema['ui:options'] &&
+      (uiSchema['ui:options'] as any).addLabel) ||
     'item';
 
-  const [keyValue, setKeyValue] = useState(label as string);
-  const displayTitle = keyValue && keyValue !== 'newKey'
-    ? keyValue
-    : `New ${addLabel}`;
+  const [keyValue, setKeyValue] = useState(
+    label && label !== 'newKey' ? (label as string) : ''
+  );
+  const displayTitle = keyValue ? keyValue : `New ${addLabel}`;
 
   const handleKeyBlur = useCallback(
     (event: React.FocusEvent<HTMLInputElement>) => {
       const newKey = event.target.value;
-      if (newKey !== label) {
+      if (newKey && newKey !== label) {
         setKeyValue(newKey);
         onKeyRenameBlur(event);
       }
@@ -58,7 +60,11 @@ function CustomWrapIfAdditional({
   const classNamesList = ['form-group', classNames].filter(Boolean).join(' ');
 
   const schemaType = schema.type;
-  const isSimpleType = schemaType === 'string' || schemaType === 'integer' || schemaType === 'number' || schemaType === 'boolean';
+  const isSimpleType =
+    schemaType === 'string' ||
+    schemaType === 'integer' ||
+    schemaType === 'number' ||
+    schemaType === 'boolean';
 
   if (isSimpleType) {
     return (
@@ -70,8 +76,7 @@ function CustomWrapIfAdditional({
             id={`${id}-key`}
             onBlur={handleKeyBlur}
             onChange={handleKeyChange}
-            defaultValue={label}
-            placeholder="Key"
+            placeholder={label && label !== 'newKey' ? label : 'Key'}
             disabled={disabled || readonly}
           />
         </div>
@@ -115,8 +120,11 @@ function CustomWrapIfAdditional({
           id={`${id}-key`}
           onBlur={handleKeyBlur}
           onChange={handleKeyChange}
-          defaultValue={label}
-          placeholder={`Enter ${addLabel} name...`}
+          placeholder={
+            label && label !== 'newKey'
+              ? `Enter ${addLabel} name...`
+              : `New ${addLabel} name`
+          }
           disabled={disabled || readonly}
         />
       </div>
