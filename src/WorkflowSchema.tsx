@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import Form from '@rjsf/core';
-import { RJSFSchema } from '@rjsf/utils';
+import { RJSFSchema, TranslatableString } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
 import workflowSchema from './schemas/workflow-v1.json';
 import uiSchema from './uiSchema';
@@ -43,6 +43,9 @@ const WorkflowSchema = function () {
       }}
       onSubmit={() => {}}
       onError={() => {}}
+      translateString={s =>
+        s === TranslatableString.NewStringDefault ? '' : s.toString()
+      }
     />
   );
 };

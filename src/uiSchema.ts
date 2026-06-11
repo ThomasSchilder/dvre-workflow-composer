@@ -8,7 +8,8 @@ const uiSchema: UiSchema = {
     labels: {
       'ui:options': { addLabel: 'label' },
       additionalProperties: {
-        'ui:options': { addLabel: 'label' }
+        'ui:options': { addLabel: 'label' },
+        'ui:placeholder': 'Value'
       }
     }
   },
@@ -64,7 +65,8 @@ const uiSchema: UiSchema = {
       volumeMounts: {
         'ui:options': { addLabel: 'volume mount' },
         additionalProperties: {
-          'ui:options': { addLabel: 'volume mount' }
+          'ui:options': { addLabel: 'volume mount' },
+          'ui:placeholder': 'Value'
         }
       }
     }

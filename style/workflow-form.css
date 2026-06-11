@@ -381,6 +381,11 @@
   min-width: 120px;
 }
 
+.jp-wb-key-value-value .control-label:not(.jp-wb-value-label),
+.jp-wb-key-value-value .field-description {
+  display: none;
+}
+
 .jp-wb-key-value-value {
   flex: 1;
   min-width: 0;

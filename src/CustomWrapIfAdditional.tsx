@@ -70,6 +70,9 @@ function CustomWrapIfAdditional({
     return (
       <div className={`${classNamesList} jp-wb-key-value-row`}>
         <div className="jp-wb-key-value-key">
+          <label className="control-label" htmlFor={`${id}-key`}>
+            Key
+          </label>
           <input
             className="form-control jp-wb-key-input"
             type="text"
@@ -80,7 +83,10 @@ function CustomWrapIfAdditional({
             disabled={disabled || readonly}
           />
         </div>
-        <div className="jp-wb-key-value-value">{children}</div>
+        <div className="jp-wb-key-value-value">
+          <label className="control-label jp-wb-value-label">Value</label>
+          {children}
+        </div>
         <div className="jp-wb-key-value-remove">
           <RemoveButton
             id={`${id}-remove`}
