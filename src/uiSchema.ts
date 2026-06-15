@@ -38,6 +38,29 @@ const uiSchema: UiSchema = {
         addLabel: 'section',
         rowGroups: [['executionMode', 'binding']]
       },
+      dependsOn: {
+        'ui:options': { orderable: false, addLabel: 'dependency' },
+        items: {
+          'ui:widget': 'dependsOnItem'
+        }
+      },
+      binding: {
+        'ui:widget': 'dynamicSelect',
+        'ui:options': { sourcePath: 'infrastructure' }
+      },
+      volumes: {
+        'ui:options': { orderable: false, addLabel: 'volume' },
+        items: {
+          'ui:widget': 'dynamicSelect',
+          'ui:options': {
+            sourcePath: 'volumes',
+            placeholder: 'Select volume...'
+          }
+        }
+      },
+      volumeMounts: {
+        'ui:field': 'volumeMounts'
+      },
       tasks: {
         'ui:options': { addLabel: 'task' },
         additionalProperties: {
@@ -47,6 +70,52 @@ const uiSchema: UiSchema = {
               ['image', 'binding'],
               ['command', 'args']
             ]
+          },
+          dependsOn: {
+            'ui:options': { orderable: false, addLabel: 'dependency' },
+            items: {
+              'ui:widget': 'dependsOnItem'
+            }
+          },
+          binding: {
+            'ui:widget': 'dynamicSelect',
+            'ui:options': { sourcePath: 'infrastructure' }
+          },
+          externalRefs: {
+            'ui:options': { orderable: false, addLabel: 'external ref' },
+            items: {
+              'ui:widget': 'dynamicSelect',
+              'ui:options': {
+                sourcePath: 'externalRefs',
+                placeholder: 'Select external ref...'
+              }
+            }
+          },
+          volumes: {
+            'ui:options': { orderable: false, addLabel: 'volume' },
+            items: {
+              'ui:widget': 'dynamicSelect',
+              'ui:options': {
+                sourcePath: 'volumes',
+                placeholder: 'Select volume...'
+              }
+            }
+          },
+          volumeMounts: {
+            'ui:field': 'volumeMounts'
+          },
+          env: {
+            'ui:options': { addLabel: 'variable' },
+            additionalProperties: {
+              'ui:options': { addLabel: 'variable' },
+              'ui:placeholder': 'Value'
+            }
+          },
+          command: {
+            'ui:options': { orderable: false }
+          },
+          args: {
+            'ui:options': { orderable: false }
           }
         }
       },
@@ -59,14 +128,53 @@ const uiSchema: UiSchema = {
               ['image', 'binding', 'port'],
               ['command', 'args']
             ]
+          },
+          dependsOn: {
+            'ui:options': { orderable: false, addLabel: 'dependency' },
+            items: {
+              'ui:widget': 'dependsOnItem'
+            }
+          },
+          binding: {
+            'ui:widget': 'dynamicSelect',
+            'ui:options': { sourcePath: 'infrastructure' }
+          },
+          externalRefs: {
+            'ui:options': { orderable: false, addLabel: 'external ref' },
+            items: {
+              'ui:widget': 'dynamicSelect',
+              'ui:options': {
+                sourcePath: 'externalRefs',
+                placeholder: 'Select external ref...'
+              }
+            }
+          },
+          volumes: {
+            'ui:options': { orderable: false, addLabel: 'volume' },
+            items: {
+              'ui:widget': 'dynamicSelect',
+              'ui:options': {
+                sourcePath: 'volumes',
+                placeholder: 'Select volume...'
+              }
+            }
+          },
+          volumeMounts: {
+            'ui:field': 'volumeMounts'
+          },
+          env: {
+            'ui:options': { addLabel: 'variable' },
+            additionalProperties: {
+              'ui:options': { addLabel: 'variable' },
+              'ui:placeholder': 'Value'
+            }
+          },
+          command: {
+            'ui:options': { orderable: false }
+          },
+          args: {
+            'ui:options': { orderable: false }
           }
-        }
-      },
-      volumeMounts: {
-        'ui:options': { addLabel: 'volume mount' },
-        additionalProperties: {
-          'ui:options': { addLabel: 'volume mount' },
-          'ui:placeholder': 'Value'
         }
       }
     }
