@@ -151,6 +151,70 @@ export function cleanFormDataOnControllerChange(
   return cleaned;
 }
 
+function resolveItemSchema(
+  propSchema: Record<string, any>,
+  defs: Record<string, any>
+): Record<string, any> | null {
+  if (propSchema.additionalProperties && propSchema.additionalProperties.$ref) {
+    const refName = propSchema.additionalProperties.$ref.replace(
+      '#/$defs/',
+      ''
+    );
+    return defs[refName] || null;
+  }
+  if (
+    propSchema.additionalProperties &&
+    typeof propSchema.additionalProperties === 'object' &&
+    !propSchema.additionalProperties.$ref
+  ) {
+    return propSchema.additionalProperties;
+  }
+  return null;
+}
+
+function cleanConditionalMap(
+  newItems: Record<string, any>,
+  prevItems: Record<string, any> | undefined,
+  itemSchema: Record<string, any>,
+  defs: Record<string, any>
+): Record<string, any> {
+  const rule = extractConditionalRules(itemSchema);
+  const result: Record<string, any> = {};
+
+  for (const key of Object.keys(newItems)) {
+    let item = newItems[key];
+    const prevItem = prevItems && prevItems[key] ? prevItems[key] : {};
+
+    if (typeof item !== 'object' || item === null) {
+      result[key] = item;
+      continue;
+    }
+
+    if (rule) {
+      item = cleanFormDataOnControllerChange(item, prevItem, rule);
+    }
+
+    const itemProps = itemSchema.properties || {};
+    for (const propKey of Object.keys(itemProps)) {
+      const nestedSchema = resolveItemSchema(itemProps[propKey], defs);
+      if (!nestedSchema) continue;
+
+      const nestedNew = item[propKey];
+      const nestedPrev = prevItem ? prevItem[propKey] : undefined;
+      if (!nestedNew || typeof nestedNew !== 'object') continue;
+
+      item = {
+        ...item,
+        [propKey]: cleanConditionalMap(nestedNew, nestedPrev, nestedSchema, defs)
+      };
+    }
+
+    result[key] = item;
+  }
+
+  return result;
+}
+
 export function cleanConditionalFormData(
   newFormData: Record<string, any>,
   prevFormData: Record<string, any>,
@@ -161,50 +225,14 @@ export function cleanConditionalFormData(
   const rootProps = rootSchema.properties || {};
 
   for (const propName of Object.keys(rootProps)) {
-    const propSchema = rootProps[propName];
-    let itemSchema: Record<string, any> | null = null;
-
-    if (
-      propSchema.additionalProperties &&
-      propSchema.additionalProperties.$ref
-    ) {
-      const refName = propSchema.additionalProperties.$ref.replace(
-        '#/$defs/',
-        ''
-      );
-      itemSchema = defs[refName] || null;
-    } else if (
-      propSchema.additionalProperties &&
-      typeof propSchema.additionalProperties === 'object' &&
-      !propSchema.additionalProperties.$ref
-    ) {
-      itemSchema = propSchema.additionalProperties;
-    }
-
+    const itemSchema = resolveItemSchema(rootProps[propName], defs);
     if (!itemSchema) continue;
-
-    const rule = extractConditionalRules(itemSchema);
-    if (!rule) continue;
 
     const newItems = cleaned[propName];
     const prevItems = prevFormData[propName];
     if (!newItems || typeof newItems !== 'object') continue;
 
-    const updatedItems: Record<string, any> = {};
-    for (const key of Object.keys(newItems)) {
-      const newItem = newItems[key];
-      const prevItem = prevItems && prevItems[key] ? prevItems[key] : {};
-      if (typeof newItem === 'object' && newItem !== null) {
-        updatedItems[key] = cleanFormDataOnControllerChange(
-          newItem,
-          prevItem,
-          rule
-        );
-      } else {
-        updatedItems[key] = newItem;
-      }
-    }
-    cleaned[propName] = updatedItems;
+    cleaned[propName] = cleanConditionalMap(newItems, prevItems, itemSchema, defs);
   }
 
   return cleaned;

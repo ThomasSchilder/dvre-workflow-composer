@@ -67,7 +67,9 @@ const uiSchema: UiSchema = {
           'ui:options': {
             addLabel: 'task',
             rowGroups: [
-              ['image', 'binding'],
+              ['source', 'binding'],
+              ['assetId'],
+              ['image'],
               ['command', 'args']
             ]
           },
@@ -125,7 +127,9 @@ const uiSchema: UiSchema = {
           'ui:options': {
             addLabel: 'service',
             rowGroups: [
-              ['image', 'binding', 'port'],
+              ['source', 'binding', 'port'],
+              ['assetId'],
+              ['image'],
               ['command', 'args']
             ]
           },
