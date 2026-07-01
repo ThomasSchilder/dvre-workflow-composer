@@ -61,6 +61,30 @@ const WorkflowSchema = function () {
     fileInputRef.current?.click();
   };
 
+  const handleExportClick = () => {
+    const result = validator.validateFormData(
+      formData,
+      workflowSchema as RJSFSchema
+    );
+    if (result.errors && result.errors.length > 0) {
+      const summary = result.errors.map(e => `- ${e.stack}`).join('\n');
+      alert(
+        `Form has ${result.errors.length} validation error(s):\n${summary}\n\nExporting anyway.`
+      );
+    }
+    const name = formData?.metadata?.name;
+    const filename = name ? `${name}.json` : 'untitled.json';
+    const blob = new Blob([JSON.stringify(formData, null, 2)], {
+      type: 'application/json'
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) {
@@ -91,6 +115,13 @@ const WorkflowSchema = function () {
           onClick={handleImportClick}
         >
           Import
+        </button>
+        <button
+          type="button"
+          className="jp-wb-toolbar-btn"
+          onClick={handleExportClick}
+        >
+          Export
         </button>
         <input
           ref={fileInputRef}
