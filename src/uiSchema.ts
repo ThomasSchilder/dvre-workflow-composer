@@ -19,6 +19,10 @@ const uiSchema: UiSchema = {
       'ui:options': {
         addLabel: 'infrastructure target',
         rowGroups: [['source'], ['type', 'endpoint'], ['assetId']]
+      },
+      assetId: {
+        'ui:widget': 'assetSelect',
+        'ui:options': { assetType: 4 }
       }
     }
   },
@@ -72,6 +76,10 @@ const uiSchema: UiSchema = {
               ['image'],
               ['command', 'args']
             ]
+          },
+          assetId: {
+            'ui:widget': 'assetSelect',
+            'ui:options': { assetType: 2 }
           },
           dependsOn: {
             'ui:options': { orderable: false, addLabel: 'dependency' },
@@ -133,6 +141,10 @@ const uiSchema: UiSchema = {
               ['command', 'args']
             ]
           },
+          assetId: {
+            'ui:widget': 'assetSelect',
+            'ui:options': { assetType: 2 }
+          },
           dependsOn: {
             'ui:options': { orderable: false, addLabel: 'dependency' },
             items: {
@@ -189,6 +201,10 @@ const uiSchema: UiSchema = {
       'ui:options': {
         addLabel: 'external ref',
         rowGroups: [['source'], ['assetId'], ['protocol', 'uri']]
+      },
+      assetId: {
+        'ui:widget': 'assetSelect',
+        'ui:options': { assetType: 0 }
       },
       credentials: {
         'ui:widget': 'hidden'

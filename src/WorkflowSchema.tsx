@@ -12,6 +12,7 @@ import CustomObjectFieldTemplate from './CustomObjectFieldTemplate';
 import CustomDescriptionField from './CustomDescriptionField';
 import DynamicSelectWidget from './DynamicSelectWidget';
 import DependsOnItemWidget from './DependsOnItemWidget';
+import AssetSelectWidget from './AssetSelectWidget';
 import VolumeMountsField from './VolumeMountsWidget';
 import { cleanConditionalFormData } from './conditionalRules';
 
@@ -42,7 +43,8 @@ const WorkflowSchema = function () {
       formContext={{ rawSchema: workflowSchema, rootFormData: formData }}
       widgets={{
         dynamicSelect: DynamicSelectWidget,
-        dependsOnItem: DependsOnItemWidget
+        dependsOnItem: DependsOnItemWidget,
+        assetSelect: AssetSelectWidget
       }}
       fields={{
         volumeMounts: VolumeMountsField

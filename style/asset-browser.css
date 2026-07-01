@@ -1,0 +1,348 @@
+.jp-wb-asset-select-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.jp-wb-asset-select-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.jp-wb-asset-select-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--jp-border-color2, #ccc);
+  border-radius: 6px;
+  background-color: var(--jp-layout-color0, #fff);
+  color: var(--jp-ui-font-color2, #666);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  padding: 0;
+}
+
+.jp-wb-asset-select-btn:hover {
+  background-color: var(--jp-brand-color0, #e3f2fd);
+  border-color: var(--jp-brand-color1, #1976d2);
+  color: var(--jp-brand-color1, #1976d2);
+}
+
+.jp-wb-asset-select-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.jp-wb-asset-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  font-family: var(--jp-ui-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+}
+
+.jp-wb-asset-modal {
+  width: 90%;
+  max-width: 960px;
+  height: 80%;
+  max-height: 700px;
+  background-color: var(--jp-layout-color1, #fff);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.jp-wb-asset-modal-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--jp-border-color2, #ddd);
+  background-color: var(--jp-layout-color1, #fff);
+  gap: 12px;
+}
+
+.jp-wb-asset-modal-header h2 {
+  margin: 0;
+  font-size: 1.3em;
+  font-weight: 700;
+  color: var(--jp-ui-font-color1, #333);
+}
+
+.jp-wb-asset-modal-type {
+  font-size: 0.8em;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 12px;
+  background-color: var(--jp-brand-color0, #e3f2fd);
+  color: var(--jp-brand-color1, #1976d2);
+}
+
+.jp-wb-asset-modal-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 1.6em;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--jp-ui-font-color2, #888);
+  padding: 0 4px;
+  transition: color 0.15s ease;
+}
+
+.jp-wb-asset-modal-close:hover {
+  color: var(--jp-ui-font-color1, #333);
+}
+
+.jp-wb-asset-modal-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.jp-wb-asset-list-panel {
+  flex: 1 1 60%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--jp-border-color2, #ddd);
+}
+
+.jp-wb-asset-search {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--jp-border-color3, #e0e0e0);
+}
+
+.jp-wb-asset-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--jp-border-color2, #ccc);
+  border-radius: 6px;
+  font-size: 0.95em;
+  box-sizing: border-box;
+  background-color: var(--jp-layout-color0, #fff);
+  color: var(--jp-ui-font-color1, #333);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.jp-wb-asset-search-input:focus {
+  border-color: var(--jp-brand-color1, #1976d2);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 3px rgba(25, 118, 210, 0.15);
+  outline: none;
+}
+
+.jp-wb-asset-loading,
+.jp-wb-asset-error,
+.jp-wb-asset-empty {
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--jp-ui-font-color2, #888);
+  font-size: 0.95em;
+}
+
+.jp-wb-asset-error {
+  color: var(--jp-error-color1, #d32f2f);
+}
+
+.jp-wb-asset-table-wrap {
+  flex: 1;
+  overflow: auto;
+}
+
+.jp-wb-asset-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88em;
+}
+
+.jp-wb-asset-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.jp-wb-asset-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.85em;
+  color: var(--jp-ui-font-color2, #666);
+  background-color: var(--jp-layout-color2, #f5f5f5);
+  border-bottom: 1px solid var(--jp-border-color2, #ddd);
+  white-space: nowrap;
+}
+
+.jp-wb-asset-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--jp-border-color3, #eee);
+  color: var(--jp-ui-font-color1, #333);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.jp-wb-asset-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+.jp-wb-asset-table tbody tr:hover {
+  background-color: var(--jp-layout-color2, #f0f6ff);
+}
+
+.jp-wb-asset-table tbody tr.jp-wb-asset-row-selected {
+  background-color: var(--jp-brand-color1, #1976d2);
+}
+
+.jp-wb-asset-table tbody tr.jp-wb-asset-row-selected td {
+  color: var(--jp-layout-color0, #fff);
+}
+
+.jp-wb-asset-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--jp-border-color3, #e0e0e0);
+  background-color: var(--jp-layout-color1, #fff);
+}
+
+.jp-wb-asset-page-btn {
+  padding: 6px 14px;
+  font-size: 0.85em;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: var(--jp-layout-color0, #fff);
+  color: var(--jp-brand-color1, #1976d2);
+  border: 1px solid var(--jp-brand-color1, #1976d2);
+  transition: background-color 0.15s ease;
+}
+
+.jp-wb-asset-page-btn:hover:not(:disabled) {
+  background-color: var(--jp-brand-color0, #e3f2fd);
+}
+
+.jp-wb-asset-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.jp-wb-asset-page-info {
+  font-size: 0.85em;
+  color: var(--jp-ui-font-color2, #666);
+}
+
+.jp-wb-asset-detail-panel {
+  flex: 1 1 40%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--jp-layout-color0, #fff);
+}
+
+.jp-wb-asset-detail-header {
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 0.95em;
+  color: var(--jp-ui-font-color1, #333);
+  border-bottom: 1px solid var(--jp-border-color3, #e0e0e0);
+  background-color: var(--jp-layout-color2, #f5f5f5);
+}
+
+.jp-wb-asset-detail-meta {
+  padding: 12px 16px;
+  font-size: 0.85em;
+  line-height: 1.7;
+  color: var(--jp-ui-font-color1, #333);
+  border-bottom: 1px solid var(--jp-border-color3, #eee);
+}
+
+.jp-wb-asset-detail-label {
+  font-weight: 600;
+  color: var(--jp-ui-font-color2, #666);
+}
+
+.jp-wb-asset-metadata-preview {
+  flex: 1;
+  overflow: auto;
+  padding: 12px 16px;
+  margin: 0;
+  font-family: var(--jp-code-font-family, 'SF Mono', Monaco, Consolas, monospace);
+  font-size: 0.82em;
+  line-height: 1.5;
+  color: var(--jp-ui-font-color1, #333);
+  white-space: pre-wrap;
+  word-break: break-word;
+  background-color: var(--jp-layout-color2, #f9f9f9);
+}
+
+.jp-wb-asset-detail-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--jp-ui-font-color2, #888);
+  font-size: 0.9em;
+  font-style: italic;
+}
+
+.jp-wb-asset-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 12px 24px;
+  border-top: 1px solid var(--jp-border-color2, #ddd);
+  background-color: var(--jp-layout-color1, #fff);
+}
+
+.jp-wb-asset-cancel-btn {
+  padding: 8px 20px;
+  font-size: 0.9em;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: var(--jp-layout-color0, #fff);
+  color: var(--jp-ui-font-color1, #333);
+  border: 1px solid var(--jp-border-color2, #ccc);
+  transition: background-color 0.15s ease;
+}
+
+.jp-wb-asset-cancel-btn:hover {
+  background-color: var(--jp-layout-color2, #f0f0f0);
+}
+
+.jp-wb-asset-select-btn-confirm {
+  padding: 8px 24px;
+  font-size: 0.9em;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: var(--jp-brand-color1, #1976d2);
+  color: var(--jp-layout-color0, #fff);
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.jp-wb-asset-select-btn-confirm:hover:not(:disabled) {
+  background-color: var(--jp-brand-color2, #1565c0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+.jp-wb-asset-select-btn-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
