@@ -73,15 +73,29 @@ function CustomObjectFieldTemplate(
     return visibleFields.has(name);
   };
 
+  const isHideField = (name: string): boolean => {
+    const propUiSchema = (uiSchema as Record<string, any>)?.[name];
+    return !!(
+      propUiSchema &&
+      propUiSchema['ui:options'] &&
+      propUiSchema['ui:options'].hideField
+    );
+  };
+
   const visibleProperties = properties.filter(
-    p => !p.hidden && isVisible(p.name)
+    p => !p.hidden && isVisible(p.name) && !isHideField(p.name)
   );
-  const rjsfHidden = properties.filter(p => p.hidden);
+  const rjsfHidden = properties.filter(p => p.hidden && !isHideField(p.name));
+  const hideFieldProps = properties.filter(
+    p => !p.hidden && isVisible(p.name) && isHideField(p.name)
+  );
 
   const rowGroupElements = rowGroups.map((group, gi) => {
     const groupProps = group
       .map(name => properties.find(p => p.name === name))
-      .filter(p => p && !p.hidden && isVisible(p!.name));
+      .filter(
+        p => p && !p.hidden && isVisible(p!.name) && !isHideField(p!.name)
+      );
     if (groupProps.length === 0) return null;
     return (
       <div className="jp-wb-row-group" key={`rowgroup-${gi}`}>
@@ -125,6 +139,9 @@ function CustomObjectFieldTemplate(
       )}
       {!showOptionalDataControlInTitle ? optionalDataControl : undefined}
       {rjsfHidden.map(p => p.content)}
+      <div style={{ display: 'none' }}>
+        {hideFieldProps.map(p => p.content)}
+      </div>
       {rowGroupElements}
       {ungrouped.map(p => p.content)}
       {canExpand(schema, uiSchema, formData) && (

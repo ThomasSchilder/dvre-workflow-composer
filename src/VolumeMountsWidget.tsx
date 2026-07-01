@@ -1,5 +1,7 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import type { FieldProps } from '@rjsf/utils';
+import { getTemplate, getUiOptions } from '@rjsf/utils';
+import CustomAddButton from './CustomAddButton';
 
 interface IMountEntry {
   volumeName: string;
@@ -7,20 +9,48 @@ interface IMountEntry {
 }
 
 function VolumeMountsField(props: FieldProps): JSX.Element {
-  const { formData, onChange, disabled, readonly, id, registry } = props;
+  const {
+    schema,
+    formData,
+    onChange,
+    disabled,
+    readonly,
+    id,
+    registry,
+    uiSchema,
+    fieldPathId
+  } = props;
   const rootFormData = (registry.formContext as any)?.rootFormData || {};
   const volumes: Record<string, any> = rootFormData.volumes || {};
   const volumeNames = Object.keys(volumes);
 
-  const mounts: IMountEntry[] = Object.keys(formData || {}).map(key => ({
-    volumeName: key,
-    mountPath: (formData as Record<string, string>)[key] || ''
-  }));
+  const [mounts, setMounts] = useState<IMountEntry[]>(() =>
+    Object.keys(formData || {}).map(key => ({
+      volumeName: key,
+      mountPath: (formData as Record<string, string>)[key] || ''
+    }))
+  );
 
-  const usedNames = new Set(mounts.map(m => m.volumeName));
-  const availableNames = volumeNames.filter(n => !usedNames.has(n));
+  const prevFormDataRef = useRef(formData);
+  useEffect(() => {
+    const prevStr = JSON.stringify(prevFormDataRef.current || {});
+    const currStr = JSON.stringify(formData || {});
+    if (prevStr !== currStr) {
+      setMounts(
+        Object.keys(formData || {}).map(key => ({
+          volumeName: key,
+          mountPath: (formData as Record<string, string>)[key] || ''
+        }))
+      );
+      prevFormDataRef.current = formData;
+    }
+  }, [formData]);
 
-  const updateMounts = useCallback(
+  const usedNames = new Set(
+    mounts.filter(m => m.volumeName).map(m => m.volumeName)
+  );
+
+  const syncToFormData = useCallback(
     (updated: IMountEntry[]) => {
       const newObj: Record<string, string> = {};
       for (const entry of updated) {
@@ -28,7 +58,8 @@ function VolumeMountsField(props: FieldProps): JSX.Element {
           newObj[entry.volumeName] = entry.mountPath;
         }
       }
-      onChange(newObj as any, []);
+      prevFormDataRef.current = newObj as any;
+      onChange(newObj as any, fieldPathId.path);
     },
     [onChange]
   );
@@ -36,31 +67,47 @@ function VolumeMountsField(props: FieldProps): JSX.Element {
   const handleNameChange = (index: number, newName: string) => {
     const updated = [...mounts];
     updated[index] = { ...updated[index], volumeName: newName };
-    updateMounts(updated);
+    setMounts(updated);
+    syncToFormData(updated);
   };
 
   const handlePathChange = (index: number, newPath: string) => {
     const updated = [...mounts];
     updated[index] = { ...updated[index], mountPath: newPath };
-    updateMounts(updated);
+    setMounts(updated);
+    syncToFormData(updated);
   };
 
   const handleRemove = (index: number) => {
     const updated = mounts.filter((_, i) => i !== index);
-    updateMounts(updated);
+    setMounts(updated);
+    syncToFormData(updated);
   };
 
   const handleAdd = () => {
-    if (availableNames.length === 0) return;
-    const updated = [
-      ...mounts,
-      { volumeName: availableNames[0], mountPath: '' }
-    ];
-    updateMounts(updated);
+    const updated = [...mounts, { volumeName: '', mountPath: '' }];
+    setMounts(updated);
+    syncToFormData(updated);
   };
+
+  const options = getUiOptions(uiSchema);
+  const DescriptionFieldTemplate = getTemplate(
+    'DescriptionFieldTemplate',
+    registry,
+    options
+  );
 
   return (
     <div className="jp-wb-volume-mounts-field" id={id}>
+      {schema.description && (
+        <DescriptionFieldTemplate
+          id={`${id}__description`}
+          description={schema.description}
+          schema={schema}
+          uiSchema={uiSchema}
+          registry={registry}
+        />
+      )}
       {mounts.map((entry, index) => {
         const nameOptions = volumeNames.filter(
           n => n === entry.volumeName || !usedNames.has(n)
@@ -105,16 +152,15 @@ function VolumeMountsField(props: FieldProps): JSX.Element {
           </div>
         );
       })}
-      {availableNames.length > 0 && (
-        <button
-          type="button"
+      <div className="array-item-add">
+        <CustomAddButton
           className="rjsf-object-property-expand"
-          disabled={disabled || readonly}
           onClick={handleAdd}
-        >
-          + Add volume mount
-        </button>
-      )}
+          disabled={disabled || readonly}
+          uiSchema={uiSchema}
+          registry={registry}
+        />
+      </div>
     </div>
   );
 }

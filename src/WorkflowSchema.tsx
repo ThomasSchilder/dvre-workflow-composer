@@ -28,6 +28,28 @@ const WorkflowSchema = function () {
         formData,
         workflowSchema as Record<string, any>
       );
+      const sections = cleaned.sections;
+      if (sections) {
+        for (const sectionName of Object.keys(sections)) {
+          const section = sections[sectionName];
+          if (section && typeof section === 'object') {
+            const mountKeys = Object.keys(section.volumeMounts || {});
+            section.volumes = mountKeys;
+
+            for (const taskCol of ['tasks', 'services'] as const) {
+              const items = section[taskCol];
+              if (items && typeof items === 'object') {
+                for (const itemName of Object.keys(items)) {
+                  const item = items[itemName];
+                  if (item && typeof item === 'object') {
+                    item.volumes = Object.keys(item.volumeMounts || {});
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
       setFormData(cleaned);
     },
     [formData]

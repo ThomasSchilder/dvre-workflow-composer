@@ -53,7 +53,7 @@ const uiSchema: UiSchema = {
         'ui:options': { sourcePath: 'infrastructure' }
       },
       volumes: {
-        'ui:options': { orderable: false, addLabel: 'volume' },
+        'ui:options': { orderable: false, addLabel: 'volume', hideField: true },
         items: {
           'ui:widget': 'dynamicSelect',
           'ui:options': {
@@ -63,7 +63,8 @@ const uiSchema: UiSchema = {
         }
       },
       volumeMounts: {
-        'ui:field': 'volumeMounts'
+        'ui:field': 'volumeMounts',
+        'ui:options': { addLabel: 'volume' }
       },
       tasks: {
         'ui:options': { addLabel: 'task' },
@@ -102,7 +103,11 @@ const uiSchema: UiSchema = {
             }
           },
           volumes: {
-            'ui:options': { orderable: false, addLabel: 'volume' },
+            'ui:options': {
+              orderable: false,
+              addLabel: 'volume',
+              hideField: true
+            },
             items: {
               'ui:widget': 'dynamicSelect',
               'ui:options': {
@@ -112,7 +117,8 @@ const uiSchema: UiSchema = {
             }
           },
           volumeMounts: {
-            'ui:field': 'volumeMounts'
+            'ui:field': 'volumeMounts',
+            'ui:options': { addLabel: 'volume' }
           },
           env: {
             'ui:options': { addLabel: 'variable' },
@@ -166,7 +172,11 @@ const uiSchema: UiSchema = {
             }
           },
           volumes: {
-            'ui:options': { orderable: false, addLabel: 'volume' },
+            'ui:options': {
+              orderable: false,
+              addLabel: 'volume',
+              hideField: true
+            },
             items: {
               'ui:widget': 'dynamicSelect',
               'ui:options': {
@@ -176,7 +186,8 @@ const uiSchema: UiSchema = {
             }
           },
           volumeMounts: {
-            'ui:field': 'volumeMounts'
+            'ui:field': 'volumeMounts',
+            'ui:options': { addLabel: 'volume' }
           },
           env: {
             'ui:options': { addLabel: 'variable' },
