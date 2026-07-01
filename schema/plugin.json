@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "DVRE Workflow Composer",
+  "description": "Settings for the DVRE Workflow Composer extension.",
+  "jupyter.lab.setting-icon": "my-extension:auth",
+  "jupyter.lab.setting-icon-label": "Workflow Composer",
+  "type": "object",
+  "properties": {
+    "schedulerUrl": {
+      "type": "string",
+      "title": "Workflow Scheduler URL",
+      "description": "URL of the workflow scheduler API (e.g. http://localhost:8080)",
+      "default": "http://localhost:8080"
+    },
+    "assetIndexerUrl": {
+      "type": "string",
+      "title": "Asset Indexer URL",
+      "description": "URL of the asset indexer API (e.g. http://localhost:8081)",
+      "default": "http://localhost:8081"
+    }
+  }
+}

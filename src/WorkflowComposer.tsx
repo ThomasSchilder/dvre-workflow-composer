@@ -1,34 +1,40 @@
 import { ReactWidget } from '@jupyterlab/ui-components';
 import React from 'react';
 
-/**
- * Components
- */
 import { WorkflowSchema } from './WorkflowSchema';
+import { IWorkflowSettings, SettingsProvider } from './SettingsContext';
 
-/**
- * React component for a counter.
- *
- * @returns The React component
- */
-const WorkflowComponent = (): JSX.Element => {
+interface IWorkflowComponentProps {
+  settings: IWorkflowSettings;
+}
+
+const WorkflowComponent = ({
+  settings
+}: IWorkflowComponentProps): JSX.Element => {
   return (
-    <div className="jp-wb-form-container">
-      <WorkflowSchema></WorkflowSchema>
-    </div>
+    <SettingsProvider value={settings}>
+      <div className="jp-wb-form-container">
+        <WorkflowSchema></WorkflowSchema>
+      </div>
+    </SettingsProvider>
   );
 };
 
-/**
- * A Counter Lumino Widget that wraps a CounterComponent.
- */
 export class WorkflowComposer extends ReactWidget {
-  constructor() {
+  private _settings: IWorkflowSettings;
+
+  constructor(settings: IWorkflowSettings) {
     super();
+    this._settings = settings;
     this.addClass('jp-wb-base');
   }
 
+  updateSettings(settings: IWorkflowSettings): void {
+    this._settings = settings;
+    this.update();
+  }
+
   render(): JSX.Element {
-    return <WorkflowComponent />;
+    return <WorkflowComponent settings={this._settings} />;
   }
 }
