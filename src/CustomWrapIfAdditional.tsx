@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import type { WrapIfAdditionalTemplateProps } from '@rjsf/utils';
 import { ADDITIONAL_PROPERTY_FLAG } from '@rjsf/utils';
 
@@ -29,6 +29,11 @@ function CustomWrapIfAdditional({
   const [keyValue, setKeyValue] = useState(
     label && label !== 'newKey' ? (label as string) : ''
   );
+
+  useEffect(() => {
+    setKeyValue(label && label !== 'newKey' ? (label as string) : '');
+  }, [label]);
+
   const displayTitle = keyValue ? keyValue : `New ${addLabel}`;
 
   const handleKeyBlur = useCallback(
@@ -77,9 +82,10 @@ function CustomWrapIfAdditional({
             className="form-control jp-wb-key-input"
             type="text"
             id={`${id}-key`}
+            value={keyValue}
             onBlur={handleKeyBlur}
             onChange={handleKeyChange}
-            placeholder={label && label !== 'newKey' ? label : 'Key'}
+            placeholder="Key"
             disabled={disabled || readonly}
           />
         </div>
@@ -124,13 +130,10 @@ function CustomWrapIfAdditional({
           className="form-control jp-wb-name-input"
           type="text"
           id={`${id}-key`}
+          value={keyValue}
           onBlur={handleKeyBlur}
           onChange={handleKeyChange}
-          placeholder={
-            label && label !== 'newKey'
-              ? `Enter ${addLabel} name...`
-              : `New ${addLabel} name`
-          }
+          placeholder={`Enter ${addLabel} name...`}
           disabled={disabled || readonly}
         />
       </div>

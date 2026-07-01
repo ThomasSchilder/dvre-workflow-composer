@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import Form from '@rjsf/core';
 import { RJSFSchema, TranslatableString } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
@@ -33,45 +33,90 @@ const WorkflowSchema = function () {
     [formData]
   );
 
-  return (
-    <Form
-      schema={workflowSchema as RJSFSchema}
-      uiSchema={uiSchema}
-      validator={validator}
-      formData={formData}
-      onChange={handleChange}
-      formContext={{ rawSchema: workflowSchema, rootFormData: formData }}
-      widgets={{
-        dynamicSelect: DynamicSelectWidget,
-        dependsOnItem: DependsOnItemWidget,
-        assetSelect: AssetSelectWidget
-      }}
-      fields={{
-        volumeMounts: VolumeMountsField
-      }}
-      templates={{
-        ButtonTemplates: {
-          AddButton: CustomAddButton,
-          RemoveButton: CustomRemoveButton,
-          MoveUpButton: HiddenButton,
-          MoveDownButton: HiddenButton,
-          CopyButton: HiddenButton
-        },
-        WrapIfAdditionalTemplate: CustomWrapIfAdditional,
-        ObjectFieldTemplate: CustomObjectFieldTemplate,
-        DescriptionFieldTemplate: CustomDescriptionField
-      }}
-      onSubmit={() => {}}
-      onError={() => {}}
-      experimental_defaultFormStateBehavior={{
-        emptyObjectFields: 'skipDefaults',
-        arrayMinItems: { populate: 'never' },
-        constAsDefaults: 'never'
-      }}
-      translateString={s =>
-        s === TranslatableString.NewStringDefault ? '' : s.toString()
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result as string);
+        setFormData(parsed);
+      } catch (err) {
+        alert(
+          'Invalid JSON file: ' +
+            (err instanceof Error ? err.message : String(err))
+        );
       }
-    />
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  return (
+    <>
+      <div className="jp-wb-form-toolbar">
+        <button
+          type="button"
+          className="jp-wb-toolbar-btn"
+          onClick={handleImportClick}
+        >
+          Import
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json,application/json"
+          style={{ display: 'none' }}
+          onChange={handleFileChange}
+        />
+      </div>
+      <Form
+        schema={workflowSchema as RJSFSchema}
+        uiSchema={uiSchema}
+        validator={validator}
+        formData={formData}
+        onChange={handleChange}
+        formContext={{ rawSchema: workflowSchema, rootFormData: formData }}
+        widgets={{
+          dynamicSelect: DynamicSelectWidget,
+          dependsOnItem: DependsOnItemWidget,
+          assetSelect: AssetSelectWidget
+        }}
+        fields={{
+          volumeMounts: VolumeMountsField
+        }}
+        templates={{
+          ButtonTemplates: {
+            AddButton: CustomAddButton,
+            RemoveButton: CustomRemoveButton,
+            MoveUpButton: HiddenButton,
+            MoveDownButton: HiddenButton,
+            CopyButton: HiddenButton
+          },
+          WrapIfAdditionalTemplate: CustomWrapIfAdditional,
+          ObjectFieldTemplate: CustomObjectFieldTemplate,
+          DescriptionFieldTemplate: CustomDescriptionField
+        }}
+        onSubmit={() => {}}
+        onError={() => {}}
+        experimental_defaultFormStateBehavior={{
+          emptyObjectFields: 'skipDefaults',
+          arrayMinItems: { populate: 'never' },
+          constAsDefaults: 'never'
+        }}
+        translateString={s =>
+          s === TranslatableString.NewStringDefault ? '' : s.toString()
+        }
+      />
+    </>
   );
 };
 export { WorkflowSchema };

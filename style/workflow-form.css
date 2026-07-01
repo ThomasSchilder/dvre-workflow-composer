@@ -21,6 +21,35 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
+.jp-wb-form-toolbar {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto 16px;
+  display: flex;
+  gap: 12px;
+  padding: 0 40px;
+  box-sizing: border-box;
+}
+
+.jp-wb-toolbar-btn {
+  padding: 8px 20px;
+  font-size: 0.9em;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: var(--jp-layout-color0, #fff);
+  color: var(--jp-brand-color1, #1976d2);
+  border: 1px solid var(--jp-brand-color1, #1976d2);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.jp-wb-toolbar-btn:hover,
+.jp-wb-toolbar-btn:active {
+  background-color: var(--jp-brand-color1, #1976d2);
+  color: var(--jp-layout-color0, #fff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
 .jp-wb-form-container form > .form-group:first-child > legend {
   font-size: 1.5em;
   font-weight: 700;
