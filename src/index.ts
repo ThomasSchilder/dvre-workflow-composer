@@ -47,7 +47,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       assetIndexerUrl: ''
     };
 
-    settingRegistry.load(plugin.id).then(settings => {
+    const settingsPromise = settingRegistry.load(plugin.id).then(settings => {
       currentSettings = readSettings(settings);
       settings.changed.connect(() => {
         currentSettings = readSettings(settings);
@@ -64,7 +64,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       label: 'Workflow composer',
       icon: args => (args['isPalette'] ? undefined : builderIcon),
       describedBy: { args: {} },
-      execute: () => {
+      execute: async () => {
+        await settingsPromise;
         const content = new WorkflowComposer(currentSettings);
         const widget = new MainAreaWidget<WorkflowComposer>({ content });
         widget.title.label = 'Workflow composer';

@@ -15,8 +15,12 @@ import DependsOnItemWidget from './DependsOnItemWidget';
 import AssetSelectWidget from './AssetSelectWidget';
 import VolumeMountsField from './VolumeMountsWidget';
 import { cleanConditionalFormData } from './conditionalRules';
+import { useSettings } from './SettingsContext';
+
+const NoSubmitButton = () => <></>;
 
 const WorkflowSchema = function () {
+  const { schedulerUrl } = useSettings();
   const [formData, setFormData] = useState<Record<string, any>>({
     apiVersion: 'v1'
   });
@@ -85,6 +89,45 @@ const WorkflowSchema = function () {
     URL.revokeObjectURL(url);
   };
 
+  const handleDeployClick = async () => {
+    const result = validator.validateFormData(
+      formData,
+      workflowSchema as RJSFSchema
+    );
+    if (result.errors && result.errors.length > 0) {
+      const summary = result.errors.map(e => `- ${e.stack}`).join('\n');
+      alert(
+        `Form has ${result.errors.length} validation error(s):\n${summary}\n\nPlease fix before deploying.`
+      );
+      return;
+    }
+    const token = localStorage.getItem('dvre-auth-token');
+    if (!token) {
+      alert('Not authenticated. Please sign in first.');
+      return;
+    }
+    try {
+      const response = await fetch(`${schedulerUrl}/api/v1/workflows`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert(`Workflow deployed successfully! ID: ${data.id}`);
+      } else {
+        alert(`Deploy failed: ${data.error || response.statusText}`);
+      }
+    } catch (err) {
+      alert(
+        'Deploy failed: ' + (err instanceof Error ? err.message : String(err))
+      );
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) {
@@ -123,6 +166,13 @@ const WorkflowSchema = function () {
         >
           Export
         </button>
+        <button
+          type="button"
+          className="jp-wb-toolbar-btn"
+          onClick={handleDeployClick}
+        >
+          Deploy
+        </button>
         <input
           ref={fileInputRef}
           type="file"
@@ -152,7 +202,8 @@ const WorkflowSchema = function () {
             RemoveButton: CustomRemoveButton,
             MoveUpButton: HiddenButton,
             MoveDownButton: HiddenButton,
-            CopyButton: HiddenButton
+            CopyButton: HiddenButton,
+            SubmitButton: NoSubmitButton
           },
           WrapIfAdditionalTemplate: CustomWrapIfAdditional,
           ObjectFieldTemplate: CustomObjectFieldTemplate,
