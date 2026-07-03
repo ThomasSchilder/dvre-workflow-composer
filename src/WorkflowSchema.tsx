@@ -16,11 +16,14 @@ import AssetSelectWidget from './AssetSelectWidget';
 import VolumeMountsField from './VolumeMountsWidget';
 import { cleanConditionalFormData } from './conditionalRules';
 import { useSettings } from './SettingsContext';
+import { useEventStream } from './useEventStream';
+import { FeedbackPanel } from './FeedbackPanel';
 
 const NoSubmitButton = () => <></>;
 
 const WorkflowSchema = function () {
   const { schedulerUrl } = useSettings();
+  const { runs, startListening, clearRuns } = useEventStream(schedulerUrl);
   const [formData, setFormData] = useState<Record<string, any>>({
     apiVersion: 'v1'
   });
@@ -117,7 +120,7 @@ const WorkflowSchema = function () {
       });
       const data = await response.json();
       if (response.ok) {
-        alert(`Workflow deployed successfully! ID: ${data.id}`);
+        startListening(data.id, formData.metadata?.name || data.id);
       } else {
         alert(`Deploy failed: ${data.error || response.statusText}`);
       }
@@ -219,6 +222,11 @@ const WorkflowSchema = function () {
         translateString={s =>
           s === TranslatableString.NewStringDefault ? '' : s.toString()
         }
+      />
+      <FeedbackPanel
+        runs={runs}
+        onClear={clearRuns}
+        schedulerUrl={schedulerUrl}
       />
     </>
   );
