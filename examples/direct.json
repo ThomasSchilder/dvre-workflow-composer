@@ -1,0 +1,61 @@
+{
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "asset-workflow-test"
+  },
+  "infrastructure": {
+    "local": {
+      "source": "direct",
+      "type": "kubernetes",
+      "endpoint": "http://localhost:8080"
+    }
+  },
+  "volumes": {
+    "data-vol": {
+      "size": "1Gi",
+      "storageClass": "local-path",
+      "accessMode": "ReadWriteOnce"
+    }
+  },
+  "sections": {
+    "write": {
+      "executionMode": "parallel",
+      "binding": "local",
+      "volumes": [],
+      "tasks": {
+        "hello-world": {
+          "source": "direct",
+          "volumeMounts": {
+            "data-vol": "/data"
+          },
+          "volumes": [
+            "data-vol"
+          ],
+          "image": "thomasschilder/dvre-test-workflow-task-hello-world",
+          "binding": "local"
+        }
+      }
+    },
+    "reverse": {
+      "dependsOn": [
+        "write"
+      ],
+      "executionMode": "parallel",
+      "binding": "local",
+      "volumes": [],
+      "tasks": {
+        "reverse-content": {
+          "source": "direct",
+          "volumeMounts": {
+            "data-vol": "/data"
+          },
+          "volumes": [
+            "data-vol"
+          ],
+          "image": "thomasschilder/dvre-test-workflow-task-reverse",
+          "binding": "local"
+        }
+      }
+    }
+  }
+}
