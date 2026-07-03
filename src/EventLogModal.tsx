@@ -14,14 +14,6 @@ interface ITreeNode {
   children: ITreeNode[];
 }
 
-const HARDCODED_OUTPUT_FILES = [
-  'write.hello-world/result',
-  'reverse.reverse-content/result',
-  'analysis.compute/result',
-  'analysis.compute/stats.json',
-  'analysis.compute/subdir/extra.txt'
-];
-
 function formatTimestamp(ts: string): string {
   try {
     const d = new Date(ts);
@@ -196,6 +188,26 @@ const EventLogModal: React.FC<IEventLogModalProps> = ({
   const [downloading, setDownloading] = useState(false);
   const [activeTab, setActiveTab] = useState<'logs' | 'output'>('logs');
 
+  const outputFiles: string[] = (() => {
+    for (let i = run.events.length - 1; i >= 0; i--) {
+      const evt = run.events[i];
+      if (evt.event === 'workflow.outputs.ready') {
+        if (
+          evt.data?.details?.hasOutputs === true &&
+          Array.isArray(evt.data.details.files)
+        ) {
+          return evt.data.details.files as string[];
+        }
+        return [];
+      }
+    }
+    return [];
+  })();
+
+  const hasOutputEvent = run.events.some(
+    e => e.event === 'workflow.outputs.ready'
+  );
+
   const toggleRow = (index: number) => {
     setExpandedRows(prev => {
       const next = new Set(prev);
@@ -238,7 +250,7 @@ const EventLogModal: React.FC<IEventLogModalProps> = ({
     }
   };
 
-  const tree = buildTree(HARDCODED_OUTPUT_FILES);
+  const tree = buildTree(outputFiles);
 
   return (
     <div
@@ -328,19 +340,31 @@ const EventLogModal: React.FC<IEventLogModalProps> = ({
           )}
           {activeTab === 'output' && (
             <div className="jp-wb-feedback-output-panel">
-              <div className="jp-wb-feedback-output-toolbar">
-                <button
-                  type="button"
-                  className="jp-wb-feedback-download-btn"
-                  onClick={handleDownload}
-                  disabled={downloading}
-                >
-                  {downloading ? 'Downloading...' : 'Download .zip'}
-                </button>
-              </div>
-              <div className="jp-wb-feedback-output-tree-wrap">
-                <TreeView nodes={tree} />
-              </div>
+              {!hasOutputEvent ? (
+                <div className="jp-wb-feedback-modal-empty">
+                  Outputs will be available when the workflow completes.
+                </div>
+              ) : outputFiles.length === 0 ? (
+                <div className="jp-wb-feedback-modal-empty">
+                  No outputs were collected for this workflow.
+                </div>
+              ) : (
+                <>
+                  <div className="jp-wb-feedback-output-toolbar">
+                    <button
+                      type="button"
+                      className="jp-wb-feedback-download-btn"
+                      onClick={handleDownload}
+                      disabled={downloading}
+                    >
+                      {downloading ? 'Downloading...' : 'Download .zip'}
+                    </button>
+                  </div>
+                  <div className="jp-wb-feedback-output-tree-wrap">
+                    <TreeView nodes={tree} />
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>

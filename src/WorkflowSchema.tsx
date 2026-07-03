@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import Form from '@rjsf/core';
-import { RJSFSchema, TranslatableString } from '@rjsf/utils';
+import { RJSFSchema, TranslatableString, FormValidation } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
 import workflowSchema from './schemas/workflow-v1.json';
 import uiSchema from './uiSchema';
@@ -27,6 +27,69 @@ const WorkflowSchema = function () {
   const [formData, setFormData] = useState<Record<string, any>>({
     apiVersion: 'v1'
   });
+
+  const customValidate = useCallback(
+    (data: Record<string, any>, errors: FormValidation) => {
+      const sections = data.sections;
+      if (!sections || typeof sections !== 'object') {
+        return errors;
+      }
+
+      for (const sectionName of Object.keys(sections)) {
+        const section = sections[sectionName];
+        if (!section || typeof section !== 'object') {
+          continue;
+        }
+        const sectionMounts = section.volumeMounts || {};
+        const tasks = section.tasks;
+        if (!tasks || typeof tasks !== 'object') {
+          continue;
+        }
+
+        for (const taskName of Object.keys(tasks)) {
+          const task = tasks[taskName];
+          if (!task || typeof task !== 'object') {
+            continue;
+          }
+          const outputs = task.outputs;
+          if (!outputs || typeof outputs !== 'object') {
+            continue;
+          }
+
+          const mountPaths = [
+            ...Object.values(sectionMounts),
+            ...Object.values(task.volumeMounts || {})
+          ].filter(p => typeof p === 'string') as string[];
+
+          for (const outputName of Object.keys(outputs)) {
+            const output = outputs[outputName];
+            if (!output || !output.path) {
+              continue;
+            }
+            const outputPath: string = output.path;
+            const onVolume = mountPaths.some(
+              mp => outputPath === mp || outputPath.startsWith(mp + '/')
+            );
+            if (!onVolume) {
+              const taskErrors = (errors as any).sections?.[sectionName]
+                ?.tasks?.[taskName];
+              if (
+                taskErrors &&
+                taskErrors.outputs &&
+                taskErrors.outputs[outputName]
+              ) {
+                taskErrors.outputs[outputName].addError(
+                  `Path "${outputPath}" is not within any mounted volume. Add a volume mount or change the path.`
+                );
+              }
+            }
+          }
+        }
+      }
+      return errors;
+    },
+    []
+  );
 
   const handleChange = useCallback(
     (event: { formData?: Record<string, any> }) => {
@@ -190,6 +253,7 @@ const WorkflowSchema = function () {
         validator={validator}
         formData={formData}
         onChange={handleChange}
+        customValidate={customValidate}
         formContext={{ rawSchema: workflowSchema, rootFormData: formData }}
         widgets={{
           dynamicSelect: DynamicSelectWidget,

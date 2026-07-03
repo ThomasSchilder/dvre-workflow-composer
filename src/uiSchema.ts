@@ -132,6 +132,12 @@ const uiSchema: UiSchema = {
           },
           args: {
             'ui:options': { orderable: false }
+          },
+          outputs: {
+            'ui:options': { addLabel: 'output' },
+            additionalProperties: {
+              'ui:options': { addLabel: 'output', rowGroups: [['path']] }
+            }
           }
         }
       },
