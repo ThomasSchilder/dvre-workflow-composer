@@ -10,7 +10,7 @@ interface IRun {
   id: string;
   name: string;
   startedAt: string;
-  status: 'running' | 'completed';
+  status: 'deploying' | 'running' | 'completed';
   events: IWorkflowEvent[];
 }
 
@@ -19,11 +19,20 @@ const MAX_RUNS = 50;
 
 const TERMINAL_EVENTS = new Set(['workflow.succeeded', 'workflow.failed']);
 
+const RUNNING_EVENTS = new Set([
+  'workflow.running',
+  'task.running',
+  'volume.bound'
+]);
+
 const ALL_EVENT_TYPES = [
   'connected',
+  'workflow.deploying',
+  'workflow.running',
   'task.succeeded',
   'task.failed',
   'task.running',
+  'task.inputs.pushed',
   'service.running',
   'service.failed',
   'service.stopped',
@@ -97,7 +106,7 @@ function useEventStream(schedulerUrl: string): {
         id: workflowId,
         name,
         startedAt: nowIso,
-        status: 'running',
+        status: 'deploying',
         events: []
       };
 
@@ -130,6 +139,13 @@ function useEventStream(schedulerUrl: string): {
             ...run,
             events: [...run.events, event]
           }));
+
+          if (RUNNING_EVENTS.has(eventType)) {
+            updateRun(workflowId, run => ({
+              ...run,
+              status: run.status === 'deploying' ? 'running' : run.status
+            }));
+          }
 
           if (TERMINAL_EVENTS.has(eventType)) {
             updateRun(workflowId, run => ({

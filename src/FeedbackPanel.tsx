@@ -53,7 +53,9 @@ const FeedbackPanel: React.FC<IFeedbackPanelProps> = ({
     );
   }, [runs]);
 
-  const runningCount = sortedRuns.filter(r => r.status === 'running').length;
+  const activeCount = sortedRuns.filter(
+    r => r.status === 'running' || r.status === 'deploying'
+  ).length;
 
   return (
     <>
@@ -73,9 +75,9 @@ const FeedbackPanel: React.FC<IFeedbackPanelProps> = ({
             <>
               <span className="jp-wb-feedback-panel-title">
                 Workflow Runs
-                {runningCount > 0 && (
+                {activeCount > 0 && (
                   <span className="jp-wb-feedback-running-badge">
-                    {runningCount} running
+                    {activeCount} active
                   </span>
                 )}
               </span>

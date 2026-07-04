@@ -138,6 +138,20 @@ const uiSchema: UiSchema = {
             additionalProperties: {
               'ui:options': { addLabel: 'output', rowGroups: [['path']] }
             }
+          },
+          inputs: {
+            'ui:options': { addLabel: 'input' },
+            additionalProperties: {
+              'ui:options': {
+                addLabel: 'input'
+              },
+              ref: {
+                'ui:widget': 'outputRef'
+              },
+              fileName: {
+                'ui:widget': 'fileUpload'
+              }
+            }
           }
         }
       },

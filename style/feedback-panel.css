@@ -161,6 +161,11 @@
   letter-spacing: 0.03em;
 }
 
+.jp-wb-feedback-status-deploying {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
 .jp-wb-feedback-status-running {
   background-color: var(--jp-brand-color0, #e3f2fd);
   color: var(--jp-brand-color1, #1976d2);

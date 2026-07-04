@@ -13,6 +13,8 @@ import CustomDescriptionField from './CustomDescriptionField';
 import DynamicSelectWidget from './DynamicSelectWidget';
 import DependsOnItemWidget from './DependsOnItemWidget';
 import AssetSelectWidget from './AssetSelectWidget';
+import OutputRefWidget from './OutputRefWidget';
+import InputFileUploadWidget from './InputFileUploadWidget';
 import VolumeMountsField from './VolumeMountsWidget';
 import { cleanConditionalFormData } from './conditionalRules';
 import { useSettings } from './SettingsContext';
@@ -21,12 +23,48 @@ import { FeedbackPanel } from './FeedbackPanel';
 
 const NoSubmitButton = () => <></>;
 
+function extractInputLocationFromRefId(
+  refId: string
+): { section: string; task: string; input: string } | null {
+  const parts = refId.split('_');
+  const sectionsIdx = parts.indexOf('sections');
+  if (sectionsIdx === -1 || sectionsIdx + 1 >= parts.length) return null;
+  const section = parts[sectionsIdx + 1];
+  const tasksIdx = parts.indexOf('tasks');
+  if (tasksIdx === -1 || tasksIdx + 1 >= parts.length) return null;
+  const task = parts[tasksIdx + 1];
+  const inputsIdx = parts.indexOf('inputs');
+  if (inputsIdx === -1 || inputsIdx + 1 >= parts.length) return null;
+  const input = parts[inputsIdx + 1];
+  return { section, task, input };
+}
+
 const WorkflowSchema = function () {
   const { schedulerUrl } = useSettings();
   const { runs, startListening, clearRuns } = useEventStream(schedulerUrl);
   const [formData, setFormData] = useState<Record<string, any>>({
     apiVersion: 'v1'
   });
+
+  const fileUploads = useRef<Map<string, { name: string; content: string }>>(
+    new Map()
+  );
+
+  const pendingInputPaths = useRef<Map<string, string>>(new Map());
+
+  const registerFileUpload = useCallback(
+    (key: string, entry: { name: string; content: string }) => {
+      fileUploads.current.set(key, entry);
+    },
+    []
+  );
+
+  const onInputRefSelected = useCallback(
+    (refWidgetId: string, outputPath: string) => {
+      pendingInputPaths.current.set(refWidgetId, outputPath);
+    },
+    []
+  );
 
   const customValidate = useCallback(
     (data: Record<string, any>, errors: FormValidation) => {
@@ -84,6 +122,35 @@ const WorkflowSchema = function () {
               }
             }
           }
+
+          const inputs = task.inputs;
+          if (!inputs || typeof inputs !== 'object') {
+            continue;
+          }
+
+          for (const inputName of Object.keys(inputs)) {
+            const input = inputs[inputName];
+            if (!input || !input.path) {
+              continue;
+            }
+            const inputPath: string = input.path;
+            const onVolume = mountPaths.some(
+              mp => inputPath === mp || inputPath.startsWith(mp + '/')
+            );
+            if (!onVolume) {
+              const taskErrors = (errors as any).sections?.[sectionName]
+                ?.tasks?.[taskName];
+              if (
+                taskErrors &&
+                taskErrors.inputs &&
+                taskErrors.inputs[inputName]
+              ) {
+                taskErrors.inputs[inputName].addError(
+                  `Path "${inputPath}" is not within any mounted volume. Add a volume mount or change the path.`
+                );
+              }
+            }
+          }
         }
       }
       return errors;
@@ -119,6 +186,21 @@ const WorkflowSchema = function () {
             }
           }
         }
+      }
+      if (pendingInputPaths.current.size > 0) {
+        for (const [refId, outputPath] of pendingInputPaths.current.entries()) {
+          const loc = extractInputLocationFromRefId(refId);
+          if (loc) {
+            const inputObj =
+              cleaned.sections?.[loc.section]?.tasks?.[loc.task]?.inputs?.[
+                loc.input
+              ];
+            if (inputObj && typeof inputObj === 'object') {
+              inputObj.path = outputPath;
+            }
+          }
+        }
+        pendingInputPaths.current.clear();
       }
       setFormData(cleaned);
     },
@@ -172,8 +254,9 @@ const WorkflowSchema = function () {
       alert('Not authenticated. Please sign in first.');
       return;
     }
+
     try {
-      const response = await fetch(`${schedulerUrl}/api/v1/workflows`, {
+      const createRes = await fetch(`${schedulerUrl}/api/v1/workflows`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -181,11 +264,42 @@ const WorkflowSchema = function () {
         },
         body: JSON.stringify(formData)
       });
-      const data = await response.json();
-      if (response.ok) {
-        startListening(data.id, formData.metadata?.name || data.id);
-      } else {
-        alert(`Deploy failed: ${data.error || response.statusText}`);
+      const createData = await createRes.json();
+      if (!createRes.ok) {
+        alert(`Validation failed: ${createData.error || createRes.statusText}`);
+        return;
+      }
+
+      const workflowId: string = createData.id;
+      const wfName = formData.metadata?.name || workflowId;
+
+      startListening(workflowId, wfName);
+
+      fetch(`${schedulerUrl}/api/v1/workflows/${workflowId}/deploy`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
+      }).catch(err => {
+        console.error('Deploy request failed:', err);
+      });
+
+      for (const [key, file] of fileUploads.current.entries()) {
+        fetch(`${schedulerUrl}/api/v1/workflows/${workflowId}/files`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            key,
+            name: file.name,
+            content: file.content
+          })
+        }).catch(err => {
+          console.error(`File upload failed for key "${key}":`, err);
+        });
       }
     } catch (err) {
       alert(
@@ -254,11 +368,18 @@ const WorkflowSchema = function () {
         formData={formData}
         onChange={handleChange}
         customValidate={customValidate}
-        formContext={{ rawSchema: workflowSchema, rootFormData: formData }}
+        formContext={{
+          rawSchema: workflowSchema,
+          rootFormData: formData,
+          registerFileUpload,
+          onInputRefSelected
+        }}
         widgets={{
           dynamicSelect: DynamicSelectWidget,
           dependsOnItem: DependsOnItemWidget,
-          assetSelect: AssetSelectWidget
+          assetSelect: AssetSelectWidget,
+          outputRef: OutputRefWidget,
+          fileUpload: InputFileUploadWidget
         }}
         fields={{
           volumeMounts: VolumeMountsField
